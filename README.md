@@ -16,7 +16,6 @@ This project demonstrates the deployment of a Flask application using GitHub Act
 7. [Environment Variables and Secrets](#environment-variables-and-secrets)
 8. [Testing and Deployment](#testing-and-deployment)
 9. [Troubleshooting](#troubleshooting)
-10. [License](#license)
 
 ## Project Overview
 
