@@ -65,16 +65,15 @@ Before you start, ensure you have the following:
    Here’s a basic `app.py` example:
 
    ```python
-   from flask import Flask
+    from flask import Flask
+    app= Flask(__name__)
 
-   app = Flask(__name__)
+    @app.route('/')
+    def hello_world():
+        return "hello ravi"
 
-   @app.route('/')
-   def hello_world():
-       return 'Hello, World!'
-
-   if __name__ == "__main__":
-       app.run(host='0.0.0.0')
+    if __name__=="__main__":
+        app.run(debug=True, port=8000)
    ```
 
 4. **Create the `requirements.txt` File**:
