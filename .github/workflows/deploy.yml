@@ -20,15 +20,6 @@ jobs:
 
     - name: Create SSH directory
       run: mkdir -p ~/.ssh
-    
-    - name: Print environment variables
-      run: |
-        echo "EC2_USER=${{ secrets.EC2_USER }}"
-        echo "EC2_HOST=${{ secrets.EC2_HOST }}"
-    
-    - name: Test SSH connection
-      run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo SSH connection successful"
       
 
     - name: Add SSH key
@@ -36,6 +27,16 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" | tee ~/.ssh/id_rsa > /dev/null
         sudo chmod 600 ~/.ssh/id_rsa
 
+    - name: Print environment variables
+      run: |
+        echo "EC2_USER=${{ secrets.EC2_USER }}"
+        echo "EC2_HOST=${{ secrets.EC2_HOST }}"
+      
+    - name: Test SSH connection
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo SSH connection successful"
+        
+        
     - name: Deploy to EC2
       run: |
         rsync -avz -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
