@@ -24,7 +24,7 @@ jobs:
     - name: Add SSH key
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" | tee ~/.ssh/id_rsa > /dev/null
-        chmod 600 ~/.ssh/id_rsa
+        sudo chmod 600 ~/.ssh/id_rsa
 
     - name: Deploy to EC2
       run: |
