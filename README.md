@@ -36,8 +36,8 @@ Before you start, ensure you have the following:
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/Ravikishans/flaskworkflow.git
+   cd flaskworkflow
    ```
 
 2. **Install Flask**:
@@ -124,9 +124,9 @@ Before you start, ensure you have the following:
 
    [Service]
    User=ubuntu  # Replace with your EC2 username
-   WorkingDirectory=/home/ubuntu/your-repo-name  # Adjust to your app's directory
-   Environment="PATH=/home/ubuntu/your-repo-name/venv/bin"
-   ExecStart=/home/ubuntu/your-repo-name/venv/bin/gunicorn -w 4 -b 0.0.0.0:8000 app:app
+   WorkingDirectory=/home/ubuntu/flaskworkflow  # Adjust to your app's directory
+   Environment="PATH=/home/ubuntu/flaskworkflow/venv/bin"
+   ExecStart=/home/ubuntu/flaskworkflow/venv/bin/gunicorn -w 4 -b 0.0.0.0:8000 app:app
    Restart=always
 
    [Install]
@@ -166,54 +166,58 @@ Before you start, ensure you have the following:
    Here’s an example `deploy.yml` file:
 
    ```yaml
-    name: Setup and Deploy
+   name: Setup and Deploy
 
-    on:
-    push:
-        branches:
-        - main
+   on:
+   push:
+      branches:
+      - main
 
-    jobs:
-    deploy:
-        runs-on: ubuntu-latest
+   jobs:
+   deploy:
+      runs-on: ubuntu-latest
 
-        steps:
-        - name: Checkout code
-        uses: actions/checkout@v3
+      steps:
+      - name: Checkout code
+         uses: actions/checkout@v3
 
-        - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-            python-version: '3.x'
+      - name: Set up Python
+         uses: actions/setup-python@v4
+         with:
+         python-version: '3.x'
 
-        - name: Create SSH directory
-        run: mkdir -p ~/.ssh
-        
+      - name: Create SSH directory
+         run: mkdir -p ~/.ssh
+         
 
-        - name: Add SSH key
-        run: |
-            echo "${{ secrets.EC2_SSH_KEY }}" | tee ~/.ssh/id_rsa > /dev/null
-            sudo chmod 600 ~/.ssh/id_rsa
+      - name: Add SSH key
+         run: |
+         echo "${{ secrets.EC2_SSH_KEY }}" | tee ~/.ssh/id_rsa > /dev/null
+         sudo chmod 600 ~/.ssh/id_rsa
 
-        - name: Print environment variables
-        run: |
-            echo "EC2_USER=${{ secrets.EC2_USER }}"
-            echo "EC2_HOST=${{ secrets.EC2_HOST }}"
-        
-        - name: Test SSH connection
-        run: |
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo SSH connection successful"
-            
-            
-        - name: Deploy to EC2
-        run: |
-            rsync -avz -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
-            ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+      - name: Print environment variables
+         run: |
+         echo "EC2_USER=${{ secrets.EC2_USER }}"
+         echo "EC2_HOST=${{ secrets.EC2_HOST }}"
+         
+      - name: Test SSH connection
+         run: |
+         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo SSH connection successful"
+         
+         
+      - name: Deploy to EC2
+         run: |
+         rsync -avz -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
+         ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd ${{ secrets.FLASK_APP_PATH }}
+            sudo apt-get update
+            sudo apt-get install -y python3-venv
+            python3 -m venv venv
             source venv/bin/activate
             pip install -r requirements.txt
             sudo systemctl restart my-flask-app.service
-            EOF
+            python app.py
+         EOF
     
    ```
 
